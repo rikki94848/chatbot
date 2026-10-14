@@ -1,0 +1,35 @@
+{
+  "bbspgl": {
+    "label": "Balai Besar Survei dan Pemetaan Geologi Kelautan (BBSPGL)",
+    "desc": "Unit pelaksana teknis di lingkungan Badan Geologi Kementerian ESDM yang melaksanakan survei dan pemetaan di bidang geologi kelautan.",
+    "alamat": {
+      "kantor_pusat": "Jl. Dr. Djunjunan No.236, Pasteur (Husein Sastranegara), Kec. Cicendo, Kota Bandung, Jawa Barat 40174",
+      "kantor_penunjang": "Jl. Kalijaga No.101, Kota Cirebon 45113"
+    },
+    "kontak": {
+      "telepon": ["(022) 6032020", "(022) 6032201"],
+      "email": "bbspgl@esdm.go.id",
+      "call_center_esdm": "136"
+    },
+    "jam": {
+      "senin_kamis": "08.00–16.00 WIB",
+      "jumat": "08.00–16.30 WIB",
+      "libur": "Sabtu/Minggu/Tanggal Merah: Tutup"
+    },
+    "tautan": {
+      "portal_bbspgl": "https://mgi.esdm.go.id/",
+      "kontak_bbspgl": "https://mgi.esdm.go.id/kontak-kami/",
+      "profil_badan_geologi": "https://geologi.esdm.go.id/bbspgl",
+      "ppid_kesdm": "https://ppid.esdm.go.id/",
+      "geoservices_badan_geologi": "https://geologi.esdm.go.id/pelayanan-publik/geoservices",
+      "instagram_resmi": "https://www.instagram.com/geologi_kelautan/"
+    },
+    "dasar_hukum": {
+      "permen_esdm_8_2022": {
+        "judul": "Permen ESDM No. 8 Tahun 2022 tentang pembentukan BBSPGL (dari P3GL) di lingkungan Badan Geologi",
+        "jdih_esdm": "https://jdih.esdm.go.id/dokumen/view?id=2248",
+        "bpk": "https://peraturan.bpk.go.id/Details/215138/permen-esdm-no-8-tahun-2022"
+      }
+    }
+  }
+}

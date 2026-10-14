@@ -1,0 +1,16 @@
+BBSPGL PROFILE (Brief)
+----------------------
+BBSPGL (Balai Besar Survei dan Pemetaan Geologi Kelautan) is a technical implementing unit under the Geological Agency,
+Ministry of Energy and Mineral Resources (ESDM), Republic of Indonesia.
+Core mandate: to conduct surveys and mapping in marine geology to provide marine geoscience data, information, and thematic maps.
+
+Outputs include:
+- Marine geology data and maps (physical, geological, geochemical, marine geophysics).
+- Thematic information for planning, marine resources management, marine geohazard mitigation.
+- Public service: data services and survey/mapping services under applicable regulations.
+
+Official portals:
+- BBSPGL/BLU Portal: https://mgi.esdm.go.id/
+- BBSPGL profile at Geological Agency service portal: https://badangeologi.id/bbspgl
+- Contact us (BBSPGL): https://mgi.esdm.go.id/kontak-kami/
+- Journal of Marine Geology: https://ejournal.mgi.esdm.go.id/

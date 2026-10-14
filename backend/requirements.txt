@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+pydantic
+requests
+rapidfuzz      # opsional, tapi disarankan
+geoip2         # opsional (jika pakai GeoIP)
+python-dotenv
+sentence-transformers
+faiss-cpu

@@ -1,0 +1,498 @@
+<!DOCTYPE html><meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Chat CS (Widget Streaming)</title>
+<style>
+  :root {
+    --pri: #1a73e8;
+  }
+  .cw-btn {
+    position: fixed;
+    right: 18px;
+    bottom: 18px;
+    z-index: 2147483000;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: 0;
+    cursor: pointer;
+    background: var(--pri);
+    color: #fff;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .cw-wrap {
+    position: fixed;
+    right: 18px;
+    bottom: 84px;
+    z-index: 2147483000;
+    width: 360px;
+    max-width: calc(100vw - 24px);
+    height: 520px;
+    max-height: calc(100vh - 120px);
+    border-radius: 14px;
+    overflow: hidden;
+    background: #fff;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+    display: none;
+    flex-direction: column;
+    font-family: system-ui, Arial;
+  }
+  .cw-head {
+    background: var(--pri);
+    color: #fff;
+    padding: 10px 12px;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+  .cw-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .cw-close {
+    background: rgba(255, 255, 255, 0.18);
+    border: 0;
+    color: #fff;
+    border-radius: 8px;
+    padding: 4px 8px;
+    cursor: pointer;
+  }
+  .cw-lang {
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    color: #fff;
+    background: transparent;
+    border-radius: 8px;
+    padding: 4px 6px;
+    font-size: 12px;
+  }
+  .cw-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 8px;
+    border-bottom: 1px solid #eee;
+    background: #fafafa;
+  }
+  .cw-chip {
+    border: 1px solid #e3e3e3;
+    border-radius: 999px;
+    padding: 5px 8px;
+    font-size: 12px;
+    background: #fff;
+    color: #111;
+    cursor: pointer;
+  }
+  .cw-log {
+    flex: 1;
+    overflow: auto;
+    padding: 10px;
+    scroll-behavior: smooth;
+    background: #fff;
+  }
+  .cw-row {
+    display: flex;
+    margin: 6px 0;
+  }
+  .cw-me {
+    justify-content: flex-end;
+  }
+  .cw-b {
+    max-width: 85%;
+    padding: 8px 10px;
+    border-radius: 12px;
+    border: 1px solid #eee;
+    white-space: pre-wrap;
+    font-size: 13px;
+  }
+  .cw-me .cw-b {
+    background: #e8f0fe;
+  }
+  .cw-bot .cw-b {
+    background: #f8f9fa;
+  }
+  .cw-typing {
+    font-size: 12px;
+    color: #666;
+    padding: 4px 12px;
+    display: none;
+  }
+  .cw-form {
+    display: flex;
+    gap: 6px;
+    padding: 8px;
+    border-top: 1px solid #eee;
+    background: #fff;
+    position: sticky;
+    bottom: 0;
+  }
+  .cw-input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 13px;
+  }
+  .cw-send {
+    padding: 10px 12px;
+    border: 0;
+    border-radius: 10px;
+    background: var(--pri);
+    color: #fff;
+    cursor: pointer;
+    font-size: 13px;
+  }
+  .cw-send[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  /* meta untuk waktu respon */
+  .cw-meta {
+    font-size: 11px;
+    color: #666;
+    margin-top: 6px;
+  }
+  @media (max-width: 480px) {
+    .cw-wrap {
+      right: 12px;
+      left: 12px;
+      width: auto;
+      height: 70vh;
+      bottom: 88px;
+    }
+  }
+</style>
+
+<button id="cw-btn" class="cw-btn" aria-label="Buka chat">💬</button>
+
+<div
+  id="cw-wrap"
+  class="cw-wrap"
+  role="dialog"
+  aria-label="Chat Customer Service"
+>
+  <div class="cw-head">
+    <div class="cw-title"><span id="cw-brand">Layanan Pelanggan</span></div>
+    <div style="display: flex; gap: 6px; align-items: center">
+      <select id="cw-lang" class="cw-lang">
+        <option value="id">ID</option>
+        <option value="en">EN</option>
+      </select>
+      <button id="cw-close" class="cw-close" aria-label="Tutup">✕</button>
+    </div>
+  </div>
+
+  <div id="cw-chips" class="cw-chips"></div>
+  <div id="cw-log" class="cw-log"></div>
+  <div id="cw-typing" class="cw-typing">…bot sedang mengetik</div>
+
+  <form id="cw-form" class="cw-form">
+    <input
+      id="cw-input"
+      class="cw-input"
+      placeholder="Tulis pesan..."
+      autocomplete="off"
+    />
+    <button id="cw-send" class="cw-send">Kirim</button>
+  </form>
+</div>
+
+<script>
+  (function () {
+    const qs = new URLSearchParams(location.search);
+    const API = qs.get("api") || "http://localhost:8080";
+    const STREAM = qs.get("stream") === "1"; // aktifkan dengan ?stream=1
+
+    const btn = document.getElementById("cw-btn");
+    const wrap = document.getElementById("cw-wrap");
+    const closeBtn = document.getElementById("cw-close");
+    const brand = document.getElementById("cw-brand");
+    const langSel = document.getElementById("cw-lang");
+    const chipsEl = document.getElementById("cw-chips");
+    const log = document.getElementById("cw-log");
+    const typing = document.getElementById("cw-typing");
+    const form = document.getElementById("cw-form");
+    const input = document.getElementById("cw-input");
+    const sendBtn = document.getElementById("cw-send");
+
+    // session id → memory backend
+    function getSessionId() {
+      const KEY = "cw-session-id";
+      let sid = localStorage.getItem(KEY);
+      if (!sid) {
+        sid = ([1e7] + -1e3 + -4e3 + -8e3 + -1e11).replace(/[018]/g, (c) =>
+          (
+            c ^
+            (crypto.getRandomValues(new Uint8Array(1))[0] & (15 >> (c / 4)))
+          ).toString(16)
+        );
+        localStorage.setItem(KEY, sid);
+      }
+      return sid;
+    }
+    const SESSION_ID = getSessionId();
+
+    // UI helpers
+    function add(text, who = "cw-bot", meta) {
+      const row = document.createElement("div");
+      row.className = "cw-row " + who;
+      const b = document.createElement("div");
+      b.className = "cw-b";
+      b.textContent = text;
+      row.appendChild(b);
+
+      // tambahkan meta jika ada (⏱ waktu/model)
+      if (meta) {
+        const m = document.createElement("div");
+        m.className = "cw-meta";
+        m.textContent = meta;
+        row.appendChild(m);
+      }
+
+      log.appendChild(row);
+      log.scrollTop = log.scrollHeight;
+      // kembalikan elemen bubble (div.cw-b) untuk streaming update
+      return b;
+    }
+
+    // set / update meta di bubble setelah ada
+    function setMeta(bubbleEl, metaText) {
+      const row = bubbleEl.parentElement; // row mengandung bubble + meta
+      let m = row.querySelector(".cw-meta");
+      if (!m) {
+        m = document.createElement("div");
+        m.className = "cw-meta";
+        row.appendChild(m);
+      }
+      m.textContent = metaText;
+      log.scrollTop = log.scrollHeight;
+    }
+
+    function setTyping(on) {
+      typing.style.display = on ? "block" : "none";
+      typing.textContent =
+        langSel.value === "en" ? "...bot is typing" : "…bot sedang mengetik";
+    }
+    function syncLang() {
+      const en = langSel.value === "en";
+      input.placeholder = en ? "Type a message..." : "Tulis pesan...";
+      brand.textContent = en ? "Customer Service" : "Layanan Pelanggan";
+      sendBtn.textContent = en
+        ? STREAM
+          ? "Send (Stream)"
+          : "Send"
+        : STREAM
+        ? "Kirim (Stream)"
+        : "Kirim";
+    }
+
+    // chip label → query
+    const MAP_ID = {
+      "Jam Operasional": "jam kerja",
+      "Lokasi Kantor": "lokasi kantor",
+      "Kontak CS": "kontak",
+      Layanan: "layanan",
+      Pengaduan: "pengaduan",
+    };
+    const MAP_EN = {
+      "Office Hours": "hours",
+      Location: "location",
+      Contact: "contact",
+      Services: "services",
+      Complaints: "complaint",
+    };
+    function renderChips(labels = []) {
+      chipsEl.innerHTML = "";
+      for (const t of labels) {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "cw-chip";
+        b.textContent = t;
+        b.onclick = () => {
+          const map = langSel.value === "en" ? MAP_EN : MAP_ID;
+          input.value = map[t] || t;
+          form.requestSubmit();
+        };
+        chipsEl.appendChild(b);
+      }
+    }
+
+    // toggle panel
+    btn.addEventListener("click", () => {
+      wrap.style.display = wrap.style.display === "flex" ? "none" : "flex";
+      if (wrap.style.display === "flex") input.focus();
+    });
+    closeBtn.addEventListener("click", () => {
+      wrap.style.display = "none";
+    });
+
+    // init greet
+    async function init() {
+      try {
+        const r = await fetch(API + "/chat-init", {
+          headers: { "x-session-id": SESSION_ID },
+        });
+        const j = await r.json();
+        langSel.value = j.lang || "id";
+        syncLang();
+        renderChips(j.quick_replies || []);
+        add(
+          j.greeting || (langSel.value === "en" ? "Hello!" : "Halo!"),
+          "cw-bot"
+        );
+      } catch {
+        langSel.value = "id";
+        syncLang();
+        renderChips(["Jam Operasional", "Lokasi Kantor", "Kontak CS"]);
+        add("Halo! (offline demo)", "cw-bot");
+      }
+    }
+    init();
+
+    // streaming state
+    let currentAbort = null;
+
+    async function sendNormal(msg) {
+      const t0 = performance.now(); // fallback stopwatch klien
+      const r = await fetch(API + "/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-session-id": SESSION_ID,
+        },
+        body: JSON.stringify({ message: msg, lang: langSel.value }),
+      });
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      const j = await r.json();
+      const t1 = performance.now();
+
+      // meta: pakai angka server jika ada, kalau tidak pakai stopwatch klien
+      const serverSecs =
+        typeof j.response_time === "number" ? j.response_time : null;
+      const clientSecs = (t1 - t0) / 1000;
+      const secs = serverSecs ?? clientSecs;
+
+      // render balasan + meta ⏱ waktu & model
+      const reply =
+        j.reply ||
+        (langSel.value === "en"
+          ? "Sorry, no reply."
+          : "Maaf, belum ada jawaban.");
+      const model = j.model_used || "model";
+      add(reply, "cw-bot", `⏱ ${secs.toFixed(2)}s`);
+
+      if (j.lang && j.lang !== langSel.value) {
+        langSel.value = j.lang;
+        syncLang();
+      }
+      if (Array.isArray(j.quick_replies)) renderChips(j.quick_replies);
+    }
+
+    async function sendStream(msg) {
+      // buat bubble kosong untuk diisi bertahap
+      const bubble = add("", "cw-bot");
+      const ctrl = new AbortController();
+      currentAbort = ctrl;
+
+      const t0 = performance.now();
+      let tFirst = null;
+
+      try {
+        const r = await fetch(API + "/chat-stream", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-session-id": SESSION_ID,
+          },
+          body: JSON.stringify({ message: msg, lang: langSel.value }),
+          signal: ctrl.signal,
+        });
+        if (!r.ok || !r.body) throw new Error("HTTP " + (r.status || 0));
+        const reader = r.body.getReader();
+        const decoder = new TextDecoder();
+
+        let acc = "";
+        let lastFlush = 0;
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          if (tFirst === null) tFirst = performance.now(); // time to first token
+          acc += decoder.decode(value, { stream: true });
+          // throttle UI update tiap ~50ms biar hemat render
+          const now = performance.now();
+          if (now - lastFlush > 50) {
+            bubble.textContent = acc;
+            log.scrollTop = log.scrollHeight;
+            lastFlush = now;
+          }
+        }
+        bubble.textContent = acc.trim();
+        // tampilkan meta TTFT & Total
+        const total = (performance.now() - t0) / 1000;
+        const ttft = tFirst ? (tFirst - t0) / 1000 : total;
+        setMeta(
+          bubble,
+          `⚡ TTFT ${ttft.toFixed(2)}s · ⏱ Total ${total.toFixed(2)}s`
+        );
+        log.scrollTop = log.scrollHeight;
+      } finally {
+        currentAbort = null;
+      }
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const msg = input.value.trim();
+      if (!msg) return;
+
+      add(msg, "cw-me");
+      input.value = "";
+      setTyping(true);
+      sendBtn.disabled = false;
+      // ubah tombol jadi Stop saat streaming aktif
+      if (STREAM) {
+        sendBtn.textContent = langSel.value === "en" ? "Stop" : "Stop";
+        // klik tombol saat streaming → abort
+        const onClickStop = () => {
+          if (currentAbort) currentAbort.abort();
+        };
+        sendBtn.addEventListener("click", onClickStop, { once: true });
+      } else {
+        sendBtn.disabled = true;
+      }
+
+      try {
+        if (STREAM) {
+          await sendStream(msg);
+        } else {
+          await sendNormal(msg);
+        }
+      } catch (err) {
+        add(
+          langSel.value === "en"
+            ? "Server is busy, please try again."
+            : "Server sibuk, coba lagi ya.",
+          "cw-bot"
+        );
+      } finally {
+        setTyping(false);
+        sendBtn.disabled = false;
+        syncLang(); // kembalikan label tombol
+      }
+    });
+
+    langSel.addEventListener("change", () => {
+      syncLang();
+    });
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && wrap.style.display === "flex")
+        wrap.style.display = "none";
+    });
+  })();
+</script>
