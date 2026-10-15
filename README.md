@@ -11,18 +11,23 @@ Aplikasi chatbot berbasis FastAPI di bagian *backend* dan antarmuka web sederhan
 
 ---
 
-## 📖 Panduan Menjalankan Proyek (Untuk Rekan Tim)
+
+# 📖 Panduan Menjalankan Proyek Chatbot (Untuk Rekan Tim)
 
 Ikuti langkah-langkah di bawah ini untuk mengunduh dan menjalankan proyek chatbot ini di komputer Anda. Pastikan di laptop Anda sudah terinstal **Python** dan **Git**.
 
+---
+
 ### Langkah 1: Download (Clone) Proyek dari GitHub
+
 1. Buka **Terminal** (Command Prompt atau PowerShell di Windows, atau Terminal di Mac/Linux).
-2. Pindahkan posisi direktori terminal ke folder tujuan tempat Anda ingin menyimpan proyek ini.
+2. Pindahkan posisi direktori terminal ke folder tujuan tempat Anda ingin menyimpan proyek ini (misalnya di folder `Documents` atau direktori utama Anda).
 3. Jalankan perintah berikut untuk meng-clone repository:
-   ```bash
-   git clone [https://github.com/rikki94848/chatbot.git](https://github.com/rikki94848/chatbot.git)
+```bash
+git clone https://github.com/rikki94848/chatbot.git
 
 ```
+
 
 4. Masuk ke dalam folder proyek yang baru saja terunduh:
 ```bash
@@ -31,6 +36,8 @@ cd chatbot
 ```
 
 
+
+---
 
 ### Langkah 2: Buat Virtual Environment Sendiri (`.venv`)
 
@@ -54,14 +61,20 @@ source .venv/bin/activate
 
 
 
+---
+
 ### Langkah 3: Instal Semua Kebutuhan Library
 
-Setelah virtual environment aktif (terdapat tanda `(.venv)` di sebelah kiri baris terminal Anda), instal semua *dependencies* secara otomatis menggunakan file `requirements.txt`:
+Setelah virtual environment aktif (biasanya ada tanda `(.venv)` di sebelah kiri baris terminal Anda), instal semua *dependencies* secara otomatis menggunakan file `requirements.txt`:
 
 ```bash
 pip install -r backend/requirements.txt
 
 ```
+
+*(Tunggu beberapa saat hingga proses download dan instalasi selesai).*
+
+---
 
 ### Langkah 4: Menjalankan Server Backend (FastAPI)
 
@@ -79,15 +92,17 @@ uvicorn app:app --reload
 ```
 
 
-3. Jika berhasil, terminal akan menampilkan tautan server lokal (contoh: `http://127.0.0.1:8000`). **Biarkan terminal ini tetap terbuka** selama Anda menggunakan chatbot.
+3. Jika berhasil, terminal akan menampilkan tautan server lokal, contohnya: `[http://127.0.0.1:8000](http://127.0.0.1:8000)`. **Biarkan terminal ini tetap terbuka** selama Anda menggunakan chatbot.
+
+---
 
 ### Langkah 5: Membuka Tampilan Chatbot (Frontend)
 
 1. Buka jendela terminal **baru** (biarkan terminal server backend di langkah 4 tetap menyala).
-2. Buka folder proyek ini menggunakan aplikasi **VS Code**.
-3. Buka file **`index.html`** yang ada di dalam folder `frontend` (Anda bisa menggunakan ekstensi *Live Server* di VS Code atau klik dua kali untuk membukanya langsung via browser).
+2. Cari folder tempat Anda menyimpan proyek `chatbot` tadi di komputer Anda, lalu masuk ke folder `frontend`. Atau buka folder proyek ini menggunakan aplikasi **VS Code**.
+3. Buka file **`index.html`** yang ada di dalam folder `frontend` dengan cara:
+* Klik dua kali file `index.html` untuk membukanya langsung via browser (Chrome, Edge, dll).
+* **Atau** buka folder proyek di VS Code, instal ekstensi **Live Server**, lalu klik kanan pada `index.html` dan pilih *Open with Live Server*.
+
+
 4. Selesai! Anda sekarang sudah bisa berinteraksi langsung dengan chatbot.
-
-```
-
-```
