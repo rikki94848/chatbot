@@ -1,0 +1,285 @@
+
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  --pri: #1a73e8;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, Arial, sans-serif;
+}
+
+.cw-btn {
+  position: fixed;
+  right: 18px;
+  bottom: 18px;
+  z-index: 2147483000;
+  display: flex;
+  width: 56px;
+  height: 56px;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 50%;
+  background: var(--pri);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+  color: #fff;
+  cursor: pointer;
+  font-size: 22px;
+}
+
+.cw-wrap {
+  position: fixed;
+  top: auto;
+  right: 18px;
+  bottom: 84px;
+  left: auto;
+  z-index: 2147483000;
+
+  display: none;
+  width: 360px;
+  height: min(520px, calc(100vh - 108px));
+  max-width: calc(100vw - 24px);
+  max-height: calc(100vh - 108px);
+
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+  font-family: system-ui, Arial, sans-serif;
+}
+
+.cw-head {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--pri);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.cw-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.cw-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.cw-close {
+  padding: 4px 8px;
+  border: 0;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.18);
+  color: #fff;
+  cursor: pointer;
+}
+
+.cw-lang {
+  padding: 4px 6px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: 8px;
+  background: transparent;
+  color: #fff;
+  font-size: 12px;
+}
+
+.cw-chips {
+  display: flex;
+  flex: 0 0 auto;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+  background: #fafafa;
+}
+
+.cw-chip {
+  padding: 5px 8px;
+  border: 1px solid #e3e3e3;
+  border-radius: 999px;
+  background: #fff;
+  color: #111;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.cw-log {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  padding: 10px;
+  scroll-behavior: smooth;
+  background: #fff;
+}
+
+.cw-row {
+  display: flex;
+  margin: 6px 0;
+}
+
+.cw-me {
+  justify-content: flex-end;
+}
+
+.cw-b {
+  max-width: 85%;
+  padding: 8px 10px;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  white-space: pre-wrap;
+  font-size: 13px;
+}
+
+.cw-me .cw-b {
+  background: #e8f0fe;
+}
+
+.cw-bot .cw-b {
+  background: #f8f9fa;
+}
+
+.cw-meta {
+  margin-top: 6px;
+  color: #666;
+  font-size: 11px;
+}
+
+.cw-typing {
+  display: none;
+  flex: 0 0 auto;
+  padding: 4px 12px;
+  color: #666;
+  font-size: 12px;
+}
+
+.cw-form {
+  position: relative;
+  bottom: auto;
+  display: flex;
+  flex: 0 0 auto;
+  gap: 6px;
+  padding: 8px;
+  border-top: 1px solid #eee;
+  background: #fff;
+}
+
+.cw-input {
+  min-width: 0;
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.cw-send {
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--pri);
+  color: #fff;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.cw-send[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Browser modern: tinggi menyesuaikan viewport aktual */
+@supports (height: 100dvh) {
+  .cw-wrap {
+    height: min(520px, calc(100dvh - 108px));
+    max-height: calc(100dvh - 108px);
+  }
+}
+
+/* Layar desktop dengan tinggi terbatas */
+@media (max-height: 700px) {
+  .cw-wrap {
+    bottom: 76px;
+    height: calc(100vh - 100px);
+    max-height: calc(100vh - 100px);
+  }
+}
+
+@supports (height: 100dvh) {
+  @media (max-height: 700px) {
+    .cw-wrap {
+      height: calc(100dvh - 100px);
+      max-height: calc(100dvh - 100px);
+    }
+  }
+}
+
+/* Tampilan HP */
+@media (max-width: 480px) {
+  .cw-wrap {
+    top: 8px;
+    right: 12px;
+    bottom: auto;
+    left: 12px;
+    width: auto;
+    height: calc(100vh - 16px);
+    max-height: calc(100vh - 16px);
+  }
+
+  .cw-btn {
+    right: 12px;
+    bottom: 12px;
+  }
+}
+
+@supports (height: 100dvh) {
+  @media (max-width: 480px) {
+    .cw-wrap {
+      height: calc(100dvh - 16px);
+      max-height: calc(100dvh - 16px);
+    }
+  }
+}
+
+/* PERBAIKAN POSISI CHATBOT BBSPGL */
+.chat-widget {
+    position: fixed !important;
+    top: 12px !important;
+    right: 24px !important;
+    bottom: 12px !important;
+    left: auto !important;
+
+    width: 400px !important;
+    height: auto !important;
+    max-height: none !important;
+    min-height: 0 !important;
+
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    display: flex;
+    flex-direction: column;
+    z-index: 2147483000 !important;
+}
+
+/* Tampilan HP */
+@media (max-width: 480px) {
+    .chat-widget {
+        top: 8px !important;
+        right: 8px !important;
+        bottom: 8px !important;
+        left: 8px !important;
+        width: auto !important;
+    }
+}

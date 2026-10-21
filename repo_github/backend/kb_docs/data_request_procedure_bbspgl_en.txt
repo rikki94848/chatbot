@@ -1,0 +1,24 @@
+PROCEDURE FOR REQUESTING MARINE GEOLOGY DATA (General Operational Summary)
+-------------------------------------------------------------------------
+Note: Specific forms, SLA, license/fee terms follow official announcements on BBSPGL/ESDM portals.
+
+Typical steps:
+1) Preparation
+   - Official request letter (institution/individual per policy).
+   - Applicant identity and contact.
+   - Data needs description (area/coordinates, parameters, time range, preferred format).
+2) Submission
+   - Submit via official channels listed on the BBSPGL portal (see links below) or service email.
+3) Verification
+   - Officers verify completeness, data availability, and intended use.
+4) Approval & terms
+   - Notification of approval/decline; if applicable, license terms and service fees per regulations.
+5) Data delivery
+   - Provided in the agreed format (e.g., shapefile, GeoTIFF/raster, CSV, documents) with metadata.
+6) Technical support
+   - Technical assistance may be provided as per policy.
+
+Official channels:
+- BBSPGL/BLU Portal: https://mgi.esdm.go.id/
+- Contact us (BBSPGL): https://mgi.esdm.go.id/kontak-kami/
+- Geological Agency BBSPGL profile: https://badangeologi.id/bbspgl

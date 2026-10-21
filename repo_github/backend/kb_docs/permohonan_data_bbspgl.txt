@@ -1,0 +1,24 @@
+PROSEDUR PERMOHONAN DATA GEOLOGI KELAUTAN (Rangkuman Operasional Umum)
+----------------------------------------------------------------------
+Catatan: Rincian format, formulir, SLA, dan ketentuan biaya/lisensi mengikuti pengumuman resmi pada portal BBSPGL/ESDM.
+
+Alur umum:
+1) Persiapan berkas
+   - Surat permohonan resmi (instansi/perorangan sesuai ketentuan).
+   - Identitas dan kontak pemohon.
+   - Deskripsi kebutuhan data (wilayah/koordinat, parameter, rentang waktu, format).
+2) Pengajuan
+   - Melalui kanal resmi yang tercantum pada portal BBSPGL (lihat tautan di bawah) atau email layanan.
+3) Verifikasi
+   - Petugas memeriksa kelengkapan, ketersediaan data, dan kesesuaian pemanfaatan.
+4) Persetujuan & ketentuan
+   - Pemberitahuan persetujuan/penolakan; jika berlaku, ketentuan lisensi dan biaya layanan sesuai regulasi.
+5) Penyerahan data
+   - Disampaikan dalam format yang disepakati (contoh: shapefile, geotiff/raster, CSV, atau dokumen) beserta metadata.
+6) Dukungan teknis
+   - Pendampingan teknis terkait pemanfaatan data dapat disediakan sesuai kebijakan.
+
+Kanal resmi:
+- Portal BBSPGL/BLU: https://mgi.esdm.go.id/
+- Kontak kami (BBSPGL): https://mgi.esdm.go.id/kontak-kami/
+- Profil BBSPGL Badan Geologi: https://badangeologi.id/bbspgl
