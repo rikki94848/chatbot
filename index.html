@@ -4,119 +4,569 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Chatbot Asisten BBSPGL</title>
+    <link rel="icon" type="image/webp" href="pict/Logo.webp" />
     <style>
+      * { box-sizing: border-box; }
+
+      :root {
+        --navy: #002a5c;
+        --navy-2: #003d7a;
+        --gold: #ffd700;
+        --bg: #f6f8fa;
+        --surface: #ffffff;
+        --surface-2: #f3f5f7;
+        --border: #e5e7eb;
+        --border-2: #d1d5db;
+        --text: #1f2937;
+        --muted: #6b7280;
+        --user-bg: linear-gradient(90deg, #e0e7ff 60%, #c7d2fe 100%);
+        --user-text: #2d3748;
+        --bot-bg: linear-gradient(90deg, #fef9c3 60%, #fde68a 100%);
+        --bot-text: #7c4700;
+      }
+
+      body.dark-mode {
+        --bg: #111827;
+        --surface: #1f2937;
+        --surface-2: #111827;
+        --border: #374151;
+        --border-2: #4b5563;
+        --text: #f3f4f6;
+        --muted: #9ca3af;
+        --user-bg: #374151;
+        --user-text: #f3f4f6;
+        --bot-bg: #4a3b0a;
+        --bot-text: #fde68a;
+      }
+
       body {
-        background: #f6f8fa;
+        background: var(--bg);
+        color: var(--text);
         font-family: "Segoe UI", Arial, sans-serif;
         margin: 0;
+        min-height: 100vh;
         display: flex;
         justify-content: center;
         align-items: center;
-        height: 100vh;
+        padding: 20px;
       }
+
+      /* ===== Widget ===== */
       .chat-container {
-        background: #fff;
+        position: relative;
+        width: 780px;
+        max-width: 100%;
+        height: 600px;
+        max-height: calc(100vh - 40px);
+        background: var(--surface);
         border-radius: 16px;
-        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-        width: 400px;
-        max-width: 95vw;
-        padding: 0;
+        box-shadow: 0 5px 40px rgba(0, 0, 0, 0.16);
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         overflow: hidden;
       }
-      .chat-header {
-        background: #002a5c;
-        color: #fff;
-        padding: 14px 18px;
-        font-weight: 600;
-        font-size: 16px;
+      .chat-main {
+        flex: 1;
+        min-width: 0;
+        display: flex;
+        flex-direction: column;
       }
+
+      /* ===== Sidebar riwayat ===== */
+      .sidebar {
+        width: 240px;
+        flex-shrink: 0;
+        background: var(--surface);
+        border-right: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        padding: 12px;
+        gap: 10px;
+        z-index: 20;
+      }
+      .new-chat-btn {
+        width: 100%;
+        padding: 10px 12px;
+        border: 1px dashed var(--border-2);
+        border-radius: 10px;
+        background: transparent;
+        color: var(--text);
+        font-size: 14px; font-weight: 600;
+        cursor: pointer; text-align: left;
+        transition: background 0.2s, border-color 0.2s;
+      }
+      .new-chat-btn:hover { background: var(--gold); border-color: var(--gold); color: var(--navy); }
+      .sidebar-title { font-size: 12px; color: var(--muted); font-weight: 600; padding: 2px 4px; }
+      .session-list {
+        list-style: none; margin: 0; padding: 0;
+        flex: 1; overflow-y: auto;
+        display: flex; flex-direction: column; gap: 4px;
+      }
+      .session-list::-webkit-scrollbar { width: 4px; }
+      .session-list::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 2px; }
+      .session-item {
+        display: flex; align-items: center; gap: 4px;
+        border-radius: 8px;
+        border-left: 3px solid transparent;
+      }
+      .session-item:hover { background: var(--surface-2); }
+      .session-item.active { background: var(--surface-2); border-left-color: var(--gold); }
+      .session-open {
+        flex: 1; min-width: 0;
+        padding: 9px 8px;
+        background: none; border: none; color: var(--text);
+        font-size: 13px; text-align: left; cursor: pointer;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      }
+      .session-delete {
+        background: none; border: none; color: var(--muted);
+        width: 28px; height: 28px; border-radius: 6px;
+        cursor: pointer; font-size: 14px; flex-shrink: 0;
+        opacity: 0;
+      }
+      .session-item:hover .session-delete,
+      .session-item.active .session-delete,
+      .session-delete:focus-visible { opacity: 1; }
+      .session-delete:hover { background: var(--border); color: #dc2626; }
+      .session-empty { font-size: 13px; color: var(--muted); padding: 8px; }
+
+      /* ----- Animasi buka/tutup sidebar ----- */
+      .sidebar {
+        overflow: hidden;
+        transition: width 0.3s ease, padding 0.3s ease, opacity 0.25s ease,
+          border-color 0.3s ease;
+      }
+      /* isi sidebar dikunci lebarnya supaya tidak "penyet" saat menyempit */
+      .sidebar > * { min-width: 214px; }
+
+      .sidebar-backdrop {
+        position: absolute; inset: 0;
+        background: rgba(0, 0, 0, 0.4);
+        opacity: 0; pointer-events: none;
+        transition: opacity 0.28s ease;
+        z-index: 15;
+      }
+
+      /* Tombol show/hide di header (ikon PNG diputihkan agar terbaca di header biru) */
+      .sidebar-toggle { position: relative; flex-shrink: 0; }
+      .sidebar-toggle .ic {
+        position: absolute;
+        width: 20px; height: 20px;
+        filter: invert(1);
+        opacity: 0;
+        transition: opacity 0.25s ease, transform 0.3s ease;
+      }
+      .ic-show { transform: translateX(8px); }
+      .ic-hide { transform: translateX(-8px); }
+      .chat-container:not(.sidebar-open) .ic-show { opacity: 1; transform: translateX(0); }
+      .chat-container.sidebar-open .ic-hide { opacity: 1; transform: translateX(0); }
+      .chat-container:not(.sidebar-open) .sidebar-toggle:hover .ic-show { transform: translateX(3px); }
+      .chat-container.sidebar-open .sidebar-toggle:hover .ic-hide { transform: translateX(-3px); }
+
+      /* Mencegah animasi "loncat" saat halaman pertama kali dimuat */
+      .no-transition .sidebar,
+      .no-transition .sidebar-backdrop { transition: none !important; }
+
+      /* Desktop: sidebar menyempit sampai hilang */
+      @media (min-width: 641px) {
+        .chat-container:not(.sidebar-open) .sidebar {
+          width: 0;
+          padding-left: 0; padding-right: 0;
+          opacity: 0;
+          border-right-color: transparent;
+          visibility: hidden;
+          transition: width 0.3s ease, padding 0.3s ease, opacity 0.2s ease,
+            border-color 0.3s ease, visibility 0s linear 0.3s;
+        }
+        .sidebar-backdrop { display: none; }
+      }
+
+      /* HP: sidebar meluncur dari kiri di atas chat, dengan latar redup */
+      @media (max-width: 640px) {
+        .sidebar {
+          position: absolute; top: 0; bottom: 0; left: 0;
+          width: 260px;
+          transform: translateX(-100%);
+          visibility: hidden;
+          transition: transform 0.28s ease, visibility 0s linear 0.28s;
+        }
+        .chat-container.sidebar-open .sidebar {
+          transform: translateX(0);
+          visibility: visible;
+          box-shadow: 4px 0 24px rgba(0, 0, 0, 0.2);
+          transition: transform 0.28s ease, visibility 0s;
+        }
+        .chat-container.sidebar-open .sidebar-backdrop {
+          opacity: 1; pointer-events: auto;
+        }
+      }
+
+      /* ===== Header ===== */
+      .chat-header {
+        background: linear-gradient(135deg, var(--navy), #003366);
+        color: #fff;
+        padding: 14px 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-shrink: 0;
+        position: relative;
+      }
+      .chat-header-left { display: flex; gap: 12px; align-items: center; }
+      .chat-avatar {
+        width: 40px; height: 40px; border-radius: 50%;
+        background: #fff;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0; overflow: hidden;
+      }
+      .chat-avatar img { width: 100%; height: 100%; object-fit: contain; padding: 3px; }
+      .chat-title { font-size: 15px; font-weight: 600; margin: 0; }
+      .chat-status { display: flex; gap: 6px; align-items: center; font-size: 12px; opacity: 0.9; margin-top: 2px; }
+      .status-dot { width: 8px; height: 8px; background: #10b981; border-radius: 50%; animation: pulse 2s infinite; }
+      @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+      .header-actions { display: flex; gap: 8px; }
+      .icon-btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: none; color: #fff;
+        width: 32px; height: 32px; border-radius: 6px;
+        cursor: pointer; font-size: 18px;
+        display: flex; align-items: center; justify-content: center;
+        transition: background 0.2s;
+      }
+      .icon-btn:hover { background: rgba(255, 255, 255, 0.3); }
+
+      .menu-dropdown {
+        position: absolute;
+        top: calc(100% - 4px);
+        right: 16px;
+        background: var(--surface);
+        color: var(--text);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        min-width: 160px;
+        overflow: hidden;
+        z-index: 5;
+      }
+      .menu-dropdown[hidden] { display: none; }
+      .menu-item {
+        width: 100%; padding: 12px 16px;
+        border: none; background: none; color: inherit;
+        text-align: left; font-size: 14px; cursor: pointer;
+        display: flex; align-items: center; gap: 10px;
+      }
+      .menu-item:hover { background: var(--surface-2); }
+      .menu-ic { width: 20px; height: 20px; flex-shrink: 0; object-fit: contain; }
+      .menu-item:hover .menu-ic { transform: scale(1.12); }
+      .menu-ic { transition: transform 0.2s ease; }
+
+      /* ===== Jendela chat (ID dipakai chatbot.js) ===== */
       .chat-window {
         flex: 1;
-        padding: 18px 12px;
+        padding: 16px 12px;
         overflow-y: auto;
-        background: #f3f5f7;
-        min-height: 320px;
-        max-height: 400px;
+        background: var(--surface-2);
         display: flex;
         flex-direction: column;
         gap: 10px;
       }
+      .chat-window::-webkit-scrollbar { width: 4px; }
+      .chat-window::-webkit-scrollbar-thumb { background: var(--border-2); border-radius: 2px; }
+
       .chat-msg {
         padding: 10px 14px;
         border-radius: 16px;
         max-width: 80%;
         word-break: break-word;
+        white-space: pre-line;
         font-size: 15px;
         line-height: 1.5;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
       }
-      .chat-msg.user {
-        background: linear-gradient(90deg, #e0e7ff 60%, #c7d2fe 100%);
-        align-self: flex-end;
-        color: #2d3748;
+      .chat-msg.user { background: var(--user-bg); color: var(--user-text); align-self: flex-end; }
+      .chat-msg.bot { background: var(--bot-bg); color: var(--bot-text); align-self: flex-start; }
+
+      /* ===== Chips ===== */
+      .quick-box, .faq-box {
+        padding: 12px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
       }
-      .chat-msg.bot {
-        background: linear-gradient(90deg, #fef9c3 60%, #fde68a 100%);
-        align-self: flex-start;
-        color: #7c4700;
+      .box-label { font-size: 13px; color: var(--muted); font-weight: 600; margin-bottom: 8px; }
+      .chips-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+      @media (max-width: 480px) { .chips-row { grid-template-columns: 1fr; } }
+
+      .chip {
+        padding: 9px 8px;
+        border-radius: 8px;
+        border: 1px solid var(--border-2);
+        background: var(--surface);
+        color: var(--text);
+        font-size: 13px; font-weight: 500;
+        cursor: pointer; white-space: nowrap;
+        overflow: hidden; text-overflow: ellipsis;
+        transition: background 0.2s, border-color 0.2s, color 0.2s;
       }
+      .chip {
+        display: flex; align-items: center; justify-content: center; gap: 6px;
+      }
+      .chip-ic { width: 18px; height: 18px; flex-shrink: 0; object-fit: contain; transition: transform 0.2s ease; }
+      .chip:hover .chip-ic { transform: scale(1.15); }
+      .chip-label { overflow: hidden; text-overflow: ellipsis; }
+      .chip:hover { background: var(--gold); border-color: var(--gold); color: var(--navy); }
+
+      /* ===== FAQ ===== */
+      .faq-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+      .faq-tab {
+        padding: 9px; border-radius: 6px;
+        border: 1px solid var(--border-2);
+        background: var(--surface); color: var(--text);
+        font-size: 13px; font-weight: 600; cursor: pointer;
+        transition: background 0.2s;
+      }
+      .faq-tab[aria-expanded="true"] { background: var(--gold); border-color: var(--gold); color: var(--navy); }
+      .faq-content {
+        display: none;
+        margin-top: 10px; padding: 10px;
+        border: 1px solid var(--border-2); border-radius: 6px;
+        font-size: 13px; line-height: 1.5; color: var(--text);
+      }
+      .faq-content.show { display: block; }
+
+      /* ===== Form (ID dipakai chatbot.js) ===== */
       .chat-form {
         display: flex;
-        border-top: 1px solid #e5e7eb;
-        background: #fff;
+        border-top: 1px solid var(--border);
+        background: var(--surface);
         padding: 10px;
+        flex-shrink: 0;
       }
       .chat-form input[type="text"] {
         flex: 1;
         padding: 10px 12px;
         border-radius: 12px;
-        border: 1px solid #d1d5db;
+        border: 1px solid var(--border-2);
+        background: var(--surface);
+        color: var(--text);
         font-size: 15px;
         outline: none;
         margin-right: 8px;
         transition: border 0.2s;
       }
-      .chat-form input[type="text"]:focus {
-        border-color: #6366f1;
-      }
+      .chat-form input[type="text"]:focus { border-color: var(--gold); box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.2); }
       .chat-form button {
-        background: #002a5c;
-        color: #fff;
-        border: none;
-        border-radius: 12px;
-        padding: 0 18px;
-        font-size: 15px;
-        cursor: pointer;
+        background: var(--navy); color: #fff;
+        border: none; border-radius: 12px;
+        padding: 0 18px; font-size: 15px; cursor: pointer;
         transition: background 0.2s;
       }
-      .chat-form button:hover {
-        background: #003d7a;
+      .chat-form button:hover { background: var(--navy-2); }
+
+      :focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+
+      @media (prefers-reduced-motion: reduce) {
+        * { animation: none !important; transition: none !important; }
       }
     </style>
   </head>
   <body>
-    <div class="chat-container">
-      <div class="chat-header">🌊 Asisten BBSPGL</div>
-      <div id="chat-window" class="chat-window">
-        <div class="chat-msg bot">
-          Halo! Selamat datang di layanan informasi BBSPGL. Ada yang bisa saya
-          bantu?
+    <!-- Chat -->
+    <div class="chat-container sidebar-open" id="chat-widget" role="region" aria-labelledby="chat-title">
+      <!-- Sidebar riwayat percakapan -->
+      <aside class="sidebar" id="sidebar" aria-label="Riwayat percakapan">
+        <button class="new-chat-btn" id="new-chat" type="button" data-i18n="newChat">＋ Chat baru</button>
+        <div class="sidebar-title" data-i18n="historyTitle">Riwayat</div>
+        <ul class="session-list" id="session-list"></ul>
+      </aside>
+      <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+      <div class="chat-main">
+      <div class="chat-header">
+        <div class="chat-header-left">
+          <button class="icon-btn sidebar-toggle" id="sidebar-toggle" type="button"
+            aria-controls="sidebar" aria-expanded="true" aria-label="Sembunyikan riwayat" title="Sembunyikan riwayat">
+            <img class="ic ic-show" src="pict/show.png" alt="" />
+            <img class="ic ic-hide" src="pict/hide.png" alt="" />
+          </button>
+          <div class="chat-avatar"><img src="pict/Logo.webp" alt="Logo BBSPGL" /></div>
+          <div>
+            <h3 class="chat-title" id="chat-title">Asisten BBSPGL</h3>
+            <div class="chat-status"><span class="status-dot"></span><span>Online</span></div>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button class="icon-btn" id="menu-btn" aria-label="Menu" aria-expanded="false">⋮</button>
+        </div>
+        <div class="menu-dropdown" id="menu-dropdown" hidden>
+          <button class="menu-item" id="dark-toggle" type="button"><img class="menu-ic" src="pict/dark___light-mode.png" alt="" /><span class="menu-label">Dark Mode</span></button>
+          <button class="menu-item" id="lang-toggle" type="button"><img class="menu-ic" src="pict/language.png" alt="" /><span class="menu-label">English</span></button>
+          <button class="menu-item" id="clear-history" type="button"><img class="menu-ic" src="pict/delete.png" alt="" /><span class="menu-label" data-i18n="clearAll">Hapus Semua Riwayat</span></button>
         </div>
       </div>
+
+      <div id="chat-window" class="chat-window">
+        <div class="chat-msg bot" data-i18n="greeting">
+          Halo! Selamat datang di layanan informasi BBSPGL. Ada yang bisa saya bantu?
+        </div>
+
+        <div class="quick-box">
+          <div class="box-label" data-i18n="askAbout">Tanya tentang:</div>
+          <div class="chips-row" id="chips-row">
+            <button class="chip" type="button" data-i18n-query="qHours"><img class="chip-ic" src="pict/work.png" alt="" /><span class="chip-label" data-i18n="chipHours">Jam Kerja</span></button>
+            <button class="chip" type="button" data-i18n-query="qLocation"><img class="chip-ic" src="pict/pin.png" alt="" /><span class="chip-label" data-i18n="chipLocation">Lokasi</span></button>
+            <button class="chip" type="button" data-i18n-query="qContact"><img class="chip-ic" src="pict/phone-alert.png" alt="" /><span class="chip-label" data-i18n="chipContact">Kontak</span></button>
+          </div>
+        </div>
+
+        <div class="faq-box">
+          <div class="faq-tabs">
+            <button class="faq-tab" type="button" data-faq="faq-survei" aria-expanded="false" data-i18n="tabSurvey">Survei</button>
+            <button class="faq-tab" type="button" data-faq="faq-publikasi" aria-expanded="false" data-i18n="tabPub">Publikasi</button>
+            <button class="faq-tab" type="button" data-faq="faq-kegiatan" aria-expanded="false" data-i18n="tabEvent">Kegiatan</button>
+          </div>
+          <div class="faq-content" id="faq-survei" data-i18n="faqSurvey">Kami melakukan survei batimetri, geologi, dan oseanografi di wilayah Indonesia.</div>
+          <div class="faq-content" id="faq-publikasi" data-i18n="faqPub">Tersedia laporan, artikel, dan data dalam format digital di website kami.</div>
+          <div class="faq-content" id="faq-kegiatan" data-i18n="faqEvent">Workshop, seminar, dan pelatihan diadakan sepanjang tahun.</div>
+        </div>
+      </div>
+
       <form id="chat-form" class="chat-form">
-        <input
-          type="text"
-          id="chat-input"
-          placeholder="Ketik pesan..."
-          autocomplete="off"
-          required
-        />
-        <button type="submit">Kirim</button>
+        <input type="text" id="chat-input" placeholder="Ketik pesan..." autocomplete="off" required />
+        <button type="submit" id="chat-send">Kirim</button>
       </form>
+      </div><!-- /chat-main -->
     </div>
-    <!-- Panggil file logika JavaScript -->
+
+    <!-- UI widget (tampilan saja; logika balasan tetap di chatbot.js) -->
+    <script>
+      (function () {
+        "use strict";
+
+        var $ = function (id) { return document.getElementById(id); };
+        var menuBtn = $("menu-btn"), menu = $("menu-dropdown");
+        var darkToggle = $("dark-toggle"), langToggle = $("lang-toggle");
+        var form = $("chat-form"), input = $("chat-input"), sendBtn = $("chat-send");
+
+        /* ---------- Teks dua bahasa ---------- */
+        var TEXT = {
+          id: {
+            newChat: "＋ Chat baru", historyTitle: "Riwayat", clearAll: "Hapus Semua Riwayat",
+            greeting: "Halo! Selamat datang di layanan informasi BBSPGL. Ada yang bisa saya bantu?",
+            askAbout: "Tanya tentang:",
+            chipHours: "Jam Kerja", chipLocation: "Lokasi", chipContact: "Kontak",
+            qHours: "Apa jam operasional BBSPGL?",
+            qLocation: "Dimana lokasi kantor BBSPGL?",
+            qContact: "Bagaimana cara menghubungi BBSPGL?",
+            tabSurvey: "Survei", tabPub: "Publikasi", tabEvent: "Kegiatan",
+            faqSurvey: "Kami melakukan survei batimetri, geologi, dan oseanografi di wilayah Indonesia.",
+            faqPub: "Tersedia laporan, artikel, dan data dalam format digital di website kami.",
+            faqEvent: "Workshop, seminar, dan pelatihan diadakan sepanjang tahun.",
+            placeholder: "Ketik pesan...", send: "Kirim",
+            dark: "Dark Mode", light: "Light Mode", langBtn: "English"
+          },
+          en: {
+            newChat: "＋ New chat", historyTitle: "History", clearAll: "Clear All History",
+            greeting: "Hello! Welcome to BBSPGL's information service. How can I help you?",
+            askAbout: "Ask about:",
+            chipHours: "Hours", chipLocation: "Location", chipContact: "Contact",
+            qHours: "What are BBSPGL's operating hours?",
+            qLocation: "Where is the BBSPGL office?",
+            qContact: "How can I contact BBSPGL?",
+            tabSurvey: "Surveys", tabPub: "Publications", tabEvent: "Events",
+            faqSurvey: "We conduct bathymetric, geological, and oceanographic surveys across Indonesian waters.",
+            faqPub: "Reports, articles, and data are available in digital format on our website.",
+            faqEvent: "Workshops, seminars, and training sessions are held throughout the year.",
+            placeholder: "Type a message...", send: "Send",
+            dark: "Dark Mode", light: "Light Mode", langBtn: "Bahasa Indonesia"
+          }
+        };
+
+        var lang = "id";
+        var isDark = false;
+
+        function store(key, val) { try { localStorage.setItem(key, val); } catch (e) {} }
+        function load(key) { try { return localStorage.getItem(key); } catch (e) { return null; } }
+
+        function applyLang() {
+          var t = TEXT[lang];
+          document.documentElement.lang = lang;
+          document.querySelectorAll("[data-i18n]").forEach(function (el) {
+            if (t[el.dataset.i18n]) el.textContent = t[el.dataset.i18n];
+          });
+          document.querySelectorAll("[data-i18n-query]").forEach(function (el) {
+            el.dataset.query = t[el.dataset.i18nQuery];
+          });
+          input.placeholder = t.placeholder;
+          sendBtn.textContent = t.send;
+          langToggle.querySelector(".menu-label").textContent = t.langBtn;
+          darkToggle.querySelector(".menu-label").textContent = isDark ? t.light : t.dark;
+        }
+
+        /* ---------- Menu ---------- */
+        function closeMenu() {
+          menu.setAttribute("hidden", "");
+          menuBtn.setAttribute("aria-expanded", "false");
+        }
+        menuBtn.addEventListener("click", function (e) {
+          e.stopPropagation();
+          var open = !menu.hasAttribute("hidden");
+          if (open) { closeMenu(); return; }
+          menu.removeAttribute("hidden");
+          menuBtn.setAttribute("aria-expanded", "true");
+        });
+        menu.addEventListener("click", function (e) { e.stopPropagation(); });
+        document.addEventListener("click", closeMenu);
+
+        /* ---------- Dark mode ---------- */
+        function setDark(on) {
+          isDark = on;
+          document.body.classList.toggle("dark-mode", on);
+          darkToggle.querySelector(".menu-label").textContent = on ? TEXT[lang].light : TEXT[lang].dark;
+          store("darkMode", on ? "1" : "0");
+        }
+        darkToggle.addEventListener("click", function () { setDark(!isDark); });
+
+        /* ---------- Bahasa ---------- */
+        langToggle.addEventListener("click", function () {
+          lang = lang === "id" ? "en" : "id";
+          store("lang", lang);
+          applyLang();
+        });
+
+        /* ---------- Chips: isi input lalu kirim lewat form (ditangani chatbot.js) ---------- */
+        $("chips-row").addEventListener("click", function (e) {
+          var chip = e.target.closest(".chip");
+          if (!chip) return;
+          input.value = chip.dataset.query;
+          if (form.requestSubmit) form.requestSubmit();
+          else form.dispatchEvent(new Event("submit", { cancelable: true }));
+        });
+
+        /* ---------- FAQ accordion ---------- */
+        var tabs = document.querySelectorAll(".faq-tab");
+        tabs.forEach(function (tab) {
+          tab.addEventListener("click", function () {
+            var wasOpen = tab.getAttribute("aria-expanded") === "true";
+            tabs.forEach(function (t) { t.setAttribute("aria-expanded", "false"); });
+            document.querySelectorAll(".faq-content").forEach(function (c) { c.classList.remove("show"); });
+            if (!wasOpen) {
+              tab.setAttribute("aria-expanded", "true");
+              $(tab.dataset.faq).classList.add("show");
+            }
+          });
+        });
+
+        /* ---------- Inisialisasi ---------- */
+        if (load("lang") === "en") lang = "en";
+        isDark = load("darkMode") === "1";
+        document.body.classList.toggle("dark-mode", isDark);
+        applyLang();
+      })();
+    </script>
+
+    <!-- Logika chatbot (tidak diubah) -->
     <script src="chatbot.js"></script>
   </body>
 </html>
