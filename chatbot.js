@@ -1,6 +1,6 @@
 // Konfigurasi Groq dengan OpenAI-compatible API
 const API_URL = "https://api.groq.com/openai/v1/chat/completions";
-const API_KEY = process.env.GROQ_API_KEY; // (Simpan di lokal dulu, nanti dipindah ke backend)
+const API_KEY = "GROQ_API_KEY";
 
 const SYSTEM_PROMPT = `
 Anda ialah Pembantu AI rasmi bagi Balai Besar Survei dan Pemetaan Geologi Kelautan (BBSPGL), 

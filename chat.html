@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="id">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chatbot BBSPGL AI - Groq</title>
+    <title>Chatbot Asisten BBSPGL</title>
     <style>
       body {
         background: #f6f8fa;
@@ -18,12 +18,19 @@
         background: #fff;
         border-radius: 16px;
         box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
-        width: 350px;
+        width: 400px;
         max-width: 95vw;
         padding: 0;
         display: flex;
         flex-direction: column;
         overflow: hidden;
+      }
+      .chat-header {
+        background: #002a5c;
+        color: #fff;
+        padding: 14px 18px;
+        font-weight: 600;
+        font-size: 16px;
       }
       .chat-window {
         flex: 1;
@@ -32,9 +39,11 @@
         background: #f3f5f7;
         min-height: 320px;
         max-height: 400px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
       }
       .chat-msg {
-        margin-bottom: 12px;
         padding: 10px 14px;
         border-radius: 16px;
         max-width: 80%;
@@ -42,7 +51,6 @@
         font-size: 15px;
         line-height: 1.5;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-        position: relative;
       }
       .chat-msg.user {
         background: linear-gradient(90deg, #e0e7ff 60%, #c7d2fe 100%);
@@ -74,7 +82,7 @@
         border-color: #6366f1;
       }
       .chat-form button {
-        background: #6366f1;
+        background: #002a5c;
         color: #fff;
         border: none;
         border-radius: 12px;
@@ -84,13 +92,19 @@
         transition: background 0.2s;
       }
       .chat-form button:hover {
-        background: #4338ca;
+        background: #003d7a;
       }
     </style>
   </head>
   <body>
     <div class="chat-container">
-      <div id="chat-window" class="chat-window"></div>
+      <div class="chat-header">🌊 Asisten BBSPGL</div>
+      <div id="chat-window" class="chat-window">
+        <div class="chat-msg bot">
+          Halo! Selamat datang di layanan informasi BBSPGL. Ada yang bisa saya
+          bantu?
+        </div>
+      </div>
       <form id="chat-form" class="chat-form">
         <input
           type="text"
@@ -102,6 +116,7 @@
         <button type="submit">Kirim</button>
       </form>
     </div>
+    <!-- Panggil file logika JavaScript -->
     <script src="chatbot.js"></script>
   </body>
 </html>
