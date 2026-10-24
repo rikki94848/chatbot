@@ -1,101 +1,107 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chatbot Kesihatan AI - Hugging Face</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chatbot BBSPGL AI - Groq</title>
     <style>
-        body {
-            background: #f6f8fa;
-            font-family: 'Segoe UI', Arial, sans-serif;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .chat-container {
-            background: #fff;
-            border-radius: 16px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-            width: 350px;
-            max-width: 95vw;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-        .chat-window {
-            flex: 1;
-            padding: 18px 12px;
-            overflow-y: auto;
-            background: #f3f5f7;
-            min-height: 320px;
-            max-height: 400px;
-        }
-        .chat-msg {
-            margin-bottom: 12px;
-            padding: 10px 14px;
-            border-radius: 16px;
-            max-width: 80%;
-            word-break: break-word;
-            font-size: 15px;
-            line-height: 1.5;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-            position: relative;
-        }
-        .chat-msg.user {
-            background: linear-gradient(90deg, #e0e7ff 60%, #c7d2fe 100%);
-            align-self: flex-end;
-            color: #2d3748;
-        }
-        .chat-msg.bot {
-            background: linear-gradient(90deg, #fef9c3 60%, #fde68a 100%);
-            align-self: flex-start;
-            color: #7c4700;
-        }
-        .chat-form {
-            display: flex;
-            border-top: 1px solid #e5e7eb;
-            background: #fff;
-            padding: 10px;
-        }
-        .chat-form input[type="text"] {
-            flex: 1;
-            padding: 10px 12px;
-            border-radius: 12px;
-            border: 1px solid #d1d5db;
-            font-size: 15px;
-            outline: none;
-            margin-right: 8px;
-            transition: border 0.2s;
-        }
-        .chat-form input[type="text"]:focus {
-            border-color: #6366f1;
-        }
-        .chat-form button {
-            background: #6366f1;
-            color: #fff;
-            border: none;
-            border-radius: 12px;
-            padding: 0 18px;
-            font-size: 15px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-        .chat-form button:hover {
-            background: #4338ca;
-        }
+      body {
+        background: #f6f8fa;
+        font-family: "Segoe UI", Arial, sans-serif;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+      .chat-container {
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+        width: 350px;
+        max-width: 95vw;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      .chat-window {
+        flex: 1;
+        padding: 18px 12px;
+        overflow-y: auto;
+        background: #f3f5f7;
+        min-height: 320px;
+        max-height: 400px;
+      }
+      .chat-msg {
+        margin-bottom: 12px;
+        padding: 10px 14px;
+        border-radius: 16px;
+        max-width: 80%;
+        word-break: break-word;
+        font-size: 15px;
+        line-height: 1.5;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        position: relative;
+      }
+      .chat-msg.user {
+        background: linear-gradient(90deg, #e0e7ff 60%, #c7d2fe 100%);
+        align-self: flex-end;
+        color: #2d3748;
+      }
+      .chat-msg.bot {
+        background: linear-gradient(90deg, #fef9c3 60%, #fde68a 100%);
+        align-self: flex-start;
+        color: #7c4700;
+      }
+      .chat-form {
+        display: flex;
+        border-top: 1px solid #e5e7eb;
+        background: #fff;
+        padding: 10px;
+      }
+      .chat-form input[type="text"] {
+        flex: 1;
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 1px solid #d1d5db;
+        font-size: 15px;
+        outline: none;
+        margin-right: 8px;
+        transition: border 0.2s;
+      }
+      .chat-form input[type="text"]:focus {
+        border-color: #6366f1;
+      }
+      .chat-form button {
+        background: #6366f1;
+        color: #fff;
+        border: none;
+        border-radius: 12px;
+        padding: 0 18px;
+        font-size: 15px;
+        cursor: pointer;
+        transition: background 0.2s;
+      }
+      .chat-form button:hover {
+        background: #4338ca;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="chat-container">
-        <div id="chat-window" class="chat-window"></div>
-        <form id="chat-form" class="chat-form">
-            <input type="text" id="chat-input" placeholder="Ketik pesan..." autocomplete="off" required />
-            <button type="submit">Kirim</button>
-        </form>
+      <div id="chat-window" class="chat-window"></div>
+      <form id="chat-form" class="chat-form">
+        <input
+          type="text"
+          id="chat-input"
+          placeholder="Ketik pesan..."
+          autocomplete="off"
+          required
+        />
+        <button type="submit">Kirim</button>
+      </form>
     </div>
     <script src="chatbot.js"></script>
-</body>
+  </body>
 </html>
