@@ -1,25 +1,22 @@
-// Konfigurasi Groq dengan OpenAI-compatible API
-const API_URL = "https://api.groq.com/openai/v1/chat/completions";
-const API_KEY = "GROQ_API_KEY";
-
 const SYSTEM_PROMPT = `
-Anda ialah Pembantu AI rasmi bagi Balai Besar Survei dan Pemetaan Geologi Kelautan (BBSPGL), 
+Anda adalah Asisten AI resmi bagi Balai Besar Survei dan Pemetaan Geologi Kelautan (BBSPGL), 
 Badan Geologi, Kementerian ESDM Republik Indonesia.
 
-Peranan anda ialah menjadi wakil khidmat pelanggan (customer service) dan pembantu maklumat 
-yang profesional, ramah, bermaklumat, dan berwibawa.
+Peran Anda adalah menjadi wakil layanan pelanggan (customer service) dan asisten informasi 
+yang profesional, ramah, informatif, dan berwibawa.
 
-Tugas dan Skop Anda:
-1. Memberikan maklumat asas mengenai profil, fungsi, dan perkhidmatan BBSPGL (seperti survei geologi kelautan, pemetaan dasar laut, penyelidikan marin, dan data kelautan).
-2. Membantu menjawab pertanyaan umum daripada masyarakat, penyelidik, pelajar, atau pihak berkepentingan (stakeholders) berkaitan bidang geologi kelautan.
-3. Menjelaskan prosedur permohonan data, perkhidmatan makmal, atau kerjasama penyelidikan dengan cara yang mudah difahami.
-4. Menyediakan maklumat rujukan, penerbitan, atau mengarahkan pengguna ke saluran rasmi BBSPGL jika memerlukan bantuan teknikal yang mendalam.
+Tugas dan Cakupan Anda:
+1. Memberikan informasi dasar mengenai profil, fungsi, dan layanan BBSPGL (seperti survei geologi kelautan, pemetaan dasar laut, penelitian kelautan, dan data kelautan).
+2. Membantu menjawab pertanyaan umum dari masyarakat, peneliti, pelajar, atau pemangku kepentingan (stakeholders) terkait bidang geologi kelautan.
+3. Menjelaskan prosedur permohonan data, layanan laboratorium, atau kerja sama penelitian dengan cara yang mudah dipahami.
+4. Menyediakan informasi rujukan, publikasi, atau mengarahkan pengguna ke saluran resmi BBSPGL jika memerlukan bantuan teknis yang mendalam.
 
-Sila jawab SEMUA pertanyaan pengguna dalam **Bahasa Malaysia / Bahasa Indonesia** mengikut kesesuaian, 
-dengan gaya bahasa yang sopan, rasmi, mesra, dan jelas dalam penerangan.
+Panduan Bahasa:
+- Jika pengguna bertanya dalam Bahasa Indonesia, jawablah dalam **Bahasa Indonesia** yang baik, sopan, dan resmi.
+- Jika pengguna bertanya dalam Bahasa Inggris (English), jawablah dalam **Bahasa Inggris** yang profesional, sopan, dan jelas.
 
-Jika soalan di luar bidang kuasa BBSPGL atau memerlukan keputusan rasmi, arahkan pengguna untuk 
-menghubungi talian rasmi atau e-mel sokongan BBSPGL.
+Jika pertanyaan berada di luar kewenangan BBSPGL atau memerlukan keputusan resmi, arahkan pengguna untuk 
+menghubungi saluran resmi atau email dukungan BBSPGL.
 `;
 
 const chatWindow = document.getElementById("chat-window");
@@ -34,72 +31,36 @@ function appendMessage(sender, text) {
   chatWindow.scrollTop = chatWindow.scrollHeight;
 }
 
-async function sendToGroq(message, retryCount = 0) {
-  const payload = {
-    model: "openai/gpt-oss-20b",
-    messages: [
-      {
-        role: "system",
-        content: SYSTEM_PROMPT,
-      },
-      {
-        role: "user",
-        content: message,
-      },
-    ],
-    max_tokens: 500,
-    temperature: 0.7,
-  };
-
+// Menembak ke server.js lokal (port 3000)
+async function sendToGroq(message) {
   try {
-    console.log("Menghantar permintaan ke API Groq...");
-
-    const response = await fetch(API_URL, {
+    const response = await fetch("http://localhost:3000/api/chat", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${API_KEY}`,
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({
+        message: message,
+        systemPrompt: SYSTEM_PROMPT,
+      }),
     });
 
-    if (response.status === 503) {
-      if (retryCount < 3) {
-        const waitTime = (retryCount + 1) * 5000;
-        console.log(`Model sedang dimuat, menunggu ${waitTime}ms...`);
-        await new Promise((resolve) => setTimeout(resolve, waitTime));
-        return sendToGroq(message, retryCount + 1);
-      }
-      return "Model sedang bersiap. Sila tunggu sebentar dan cuba lagi.";
-    }
-
-    if (response.status === 429) {
-      return "Terlalu banyak permintaan. Sila tunggu sebentar dan cuba lagi.";
-    }
-
-    if (response.status === 401) {
-      return "Token API tidak sah. Sila semak konfigurasi anda.";
-    }
-
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error("API Error Response:", errorText);
-      return `Ralat ${response.status}: Perkhidmatan tidak tersedia buat sementara waktu.`;
+      return `Ralat ${response.status}: Server tidak merespons.`;
     }
 
     const data = await response.json();
 
     if (data.choices && data.choices[0] && data.choices[0].message) {
-      const result = data.choices[0].message.content.trim();
-      return result;
+      return data.choices[0].message.content.trim();
     } else if (data.error) {
       return `Ralat API: ${data.error.message || data.error}`;
     } else {
-      return "Format respons tidak dikenali. Sila cuba lagi.";
+      return "Format respons tidak dikenali.";
     }
   } catch (err) {
     console.error("Network Error:", err);
-    return `Kesalahan rangkaian: ${err.message}`;
+    return "Kesalahan rangkaian: Pastikan server.js sudah dijalankan di terminal.";
   }
 }
 
@@ -107,8 +68,10 @@ chatForm.addEventListener("submit", async function (e) {
   e.preventDefault();
   const userMsg = chatInput.value.trim();
   if (!userMsg) return;
+
   appendMessage("user", userMsg);
   chatInput.value = "";
+
   appendMessage("bot", "...sedang menaip...");
   const botReply = await sendToGroq(userMsg);
 
